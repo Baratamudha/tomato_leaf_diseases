@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:tomato_leaf_diseases/components/navbar_page.dart';
 import 'package:tomato_leaf_diseases/ui/diseases_page.dart';
 import 'package:tomato_leaf_diseases/ui/history_page.dart';

@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:tomato_leaf_diseases/ui/home_page.dart';
 
 class OnboardingPage extends StatefulWidget {

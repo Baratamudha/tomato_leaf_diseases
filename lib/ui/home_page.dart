@@ -1,9 +1,12 @@
-import 'package:flutter/material.dart';
+import 'dart:async';
+
+import 'package:material_ui/material_ui.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:tomato_leaf_diseases/components/navbar_page.dart';
 import 'package:tomato_leaf_diseases/ui/diseases_page.dart';
 import 'package:tomato_leaf_diseases/ui/history_page.dart';
 import 'package:tomato_leaf_diseases/ui/profile_page.dart';
+import 'package:tomato_leaf_diseases/ui/preview_page.dart';
 
 /// The first screen shown after onboarding.
 ///
@@ -13,8 +16,9 @@ import 'package:tomato_leaf_diseases/ui/profile_page.dart';
 class HomePage extends StatefulWidget {
   const HomePage({super.key, this.onImageSelected});
 
-  /// A hook for the future image-analysis flow.
-  final ValueChanged<XFile>? onImageSelected;
+  /// Runs the model/API analysis. An asynchronous callback lets the analysis
+  /// screen reflect the actual time required by the classifier.
+  final FutureOr<void> Function(XFile image)? onImageSelected;
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -55,7 +59,12 @@ class _HomePageState extends State<HomePage> {
       );
       if (!mounted || image == null) return;
 
-      widget.onImageSelected?.call(image);
+      Navigator.of(context).push(
+        MaterialPageRoute<void>(
+          builder: (_) =>
+              PreviewPage(image: image, onAnalyze: widget.onImageSelected),
+        ),
+      );
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
@@ -93,9 +102,8 @@ class _HomePageState extends State<HomePage> {
       _ => null,
     };
     if (page != null) {
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute<void>(builder: (_) => page),
-      );
+      Navigator.of(context)
+          .pushReplacement(MaterialPageRoute<void>(builder: (_) => page));
     }
   }
 

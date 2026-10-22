@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// A reusable Material navigation bar for the app's main sections.
 ///
@@ -29,7 +29,7 @@ class NavBarPage extends StatelessWidget {
         label: 'History',
       ),
       NavigationDestination(
-        icon: Icon(Icons.local_florist_outlined),
+        icon: Icon(Icons.energy_savings_leaf),
         selectedIcon: Icon(Icons.local_florist),
         label: 'Diseases',
       ),

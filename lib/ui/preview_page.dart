@@ -4,13 +4,20 @@ import 'dart:io';
 import 'package:material_ui/material_ui.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:tomato_leaf_diseases/ui/analysis_page.dart';
+import 'package:tomato_leaf_diseases/ui/results_page.dart';
 
 /// Lets the user review a camera or gallery image before disease analysis.
 class PreviewPage extends StatefulWidget {
-  const PreviewPage({super.key, required this.image, this.onAnalyze});
+  const PreviewPage({
+    super.key,
+    required this.image,
+    this.onAnalyze,
+    this.onResult,
+  });
 
   final XFile image;
   final FutureOr<void> Function(XFile image)? onAnalyze;
+  final ValueChanged<AnalysisResult>? onResult;
 
   @override
   State<PreviewPage> createState() => _PreviewPageState();
@@ -28,6 +35,7 @@ class _PreviewPageState extends State<PreviewPage> {
       builder: (_) => AnalysisPage(
         image: widget.image,
         onAnalyze: widget.onAnalyze,
+        onResult: widget.onResult,
       ),
     ),
   );

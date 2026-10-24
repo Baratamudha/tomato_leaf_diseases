@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:material_ui/material_ui.dart';
 import 'package:image_picker/image_picker.dart';
@@ -7,6 +8,7 @@ import 'package:tomato_leaf_diseases/ui/diseases_page.dart';
 import 'package:tomato_leaf_diseases/ui/history_page.dart';
 import 'package:tomato_leaf_diseases/ui/profile_page.dart';
 import 'package:tomato_leaf_diseases/ui/preview_page.dart';
+import 'package:tomato_leaf_diseases/ui/results_page.dart';
 
 /// The first screen shown after onboarding.
 ///
@@ -27,7 +29,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   final ImagePicker _imagePicker = ImagePicker();
 
-  final List<Detection> _detections = const [
+  final List<Detection> _detections = [
     Detection(
       title: 'Early Blight',
       date: 'May 12, 2024',
@@ -61,8 +63,11 @@ class _HomePageState extends State<HomePage> {
 
       Navigator.of(context).push(
         MaterialPageRoute<void>(
-          builder: (_) =>
-              PreviewPage(image: image, onAnalyze: widget.onImageSelected),
+          builder: (_) => PreviewPage(
+            image: image,
+            onAnalyze: widget.onImageSelected,
+            onResult: (result) => _addDetection(image, result),
+          ),
         ),
       );
       ScaffoldMessenger.of(context).showSnackBar(
@@ -80,6 +85,26 @@ class _HomePageState extends State<HomePage> {
         ),
       );
     }
+  }
+
+  void _addDetection(XFile image, AnalysisResult result) {
+    if (!mounted) return;
+    final now = DateTime.now();
+    final hour = now.hour % 12 == 0 ? 12 : now.hour % 12;
+    final minute = now.minute.toString().padLeft(2, '0');
+    setState(() {
+      _detections.insert(
+        0,
+        Detection(
+          title: result.diseaseName,
+          date: 'Today',
+          time: '$hour:$minute ${now.hour >= 12 ? 'PM' : 'AM'}',
+          confidence: result.confidence,
+          imagePath: image.path,
+          isLocalImage: true,
+        ),
+      );
+    });
   }
 
   void _openAllDetections() => Navigator.of(context).push(
@@ -320,7 +345,9 @@ class _DetectionCard extends StatelessWidget {
                 ),
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(10),
-                  child: Image.asset(detection.imagePath, fit: BoxFit.cover),
+                  child: detection.isLocalImage
+                      ? Image.file(File(detection.imagePath), fit: BoxFit.cover)
+                      : Image.asset(detection.imagePath, fit: BoxFit.cover),
                 ),
               ),
               const SizedBox(width: 12),
@@ -434,6 +461,7 @@ class Detection {
     required this.time,
     required this.confidence,
     required this.imagePath,
+    this.isLocalImage = false,
   });
 
   final String title;
@@ -441,4 +469,5 @@ class Detection {
   final String time;
   final double confidence;
   final String imagePath;
+  final bool isLocalImage;
 }

@@ -2,16 +2,23 @@ import 'dart:async';
 
 import 'package:material_ui/material_ui.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:tomato_leaf_diseases/ui/results_page.dart';
 
 /// A progress screen displayed while a leaf image is being classified.
 ///
 /// [onAnalyze] may be connected to a real model or API. The progress ring keeps
 /// moving while that work is running and only reaches 100% when it finishes.
 class AnalysisPage extends StatefulWidget {
-  const AnalysisPage({super.key, required this.image, this.onAnalyze});
+  const AnalysisPage({
+    super.key,
+    required this.image,
+    this.onAnalyze,
+    this.onResult,
+  });
 
   final XFile image;
   final FutureOr<void> Function(XFile image)? onAnalyze;
+  final ValueChanged<AnalysisResult>? onResult;
 
   @override
   State<AnalysisPage> createState() => _AnalysisPageState();
@@ -47,7 +54,26 @@ class _AnalysisPageState extends State<AnalysisPage>
         duration: const Duration(milliseconds: 420),
         curve: Curves.easeOutCubic,
       );
-      if (mounted) setState(() => _complete = true);
+      if (!mounted) return;
+      setState(() => _complete = true);
+      await Future<void>.delayed(const Duration(milliseconds: 650));
+      if (!mounted) return;
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute<void>(
+          builder: (_) => ResultsPage(
+            image: widget.image,
+            // Replace this temporary value with the label/confidence returned
+            // by the connected TFLite classifier.
+            result: const AnalysisResult(
+              diseaseName: 'Bercak Daun',
+              confidence: 94.2,
+              description:
+                  'Bercak daun is a fungal disease that causes spots on tomato leaves. Remove severely affected leaves and avoid wetting foliage when watering.',
+            ),
+            onBackToHome: widget.onResult,
+          ),
+        ),
+      );
     } catch (_) {
       if (mounted) setState(() => _failed = true);
     }
